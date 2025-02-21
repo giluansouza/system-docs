@@ -1,9 +1,10 @@
-<<<<<<< HEAD
-# 📌 Sistema de Gestão de Documentos Sensíveis
+# 📌 Sistema de Gestão de Documentos
 
 ## 🛠️ Sobre o Projeto
 
 Este é um sistema de **gestão de documentos sensíveis** desenvolvido com **Laravel** e **React**, estruturado para permitir **armazenamento, indexação e busca de documentos**. Ele é composto por um **monólito Laravel** para administração e uma **API protegida com Sanctum**, consumida pelo frontend React.
+
+O sistema vai permitir busca avançada, criação de grafos e integração com IA para melhorar o fluxo de consulta e respostas.
 
 - **API**: Desenvolvida com Laravel, protegida por **Laravel Sanctum**, e consumida pelo frontend React.
 - **Painel Administrativo**: Implementado com Laravel Breeze (Blade), fornecendo login, registro e dashboard integrado.
