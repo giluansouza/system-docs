@@ -19,6 +19,8 @@ services:
       IGNITION_LOCAL_SITES_PATH: "${PWD}"
     volumes:
       - "./backend:/var/www/html"
+      - ./backend/vendor:/var/www/html/vendor
+      - ./backend/storage:/var/www/html/storage
     labels:
       - "traefik.enable=true"
       - "traefik.http.routers.laravel.rule=Host(`docs.gs`)"
@@ -27,15 +29,16 @@ services:
     networks:
       - sail
     depends_on:
-      - pgsql
-      - redis
+      pgsql:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
 
   frontend:
     image: node:20-alpine # Lightweight Node.js image
     working_dir: /app
     volumes:
       - ./frontend:/app # Mount local frontend folder
-      - /app/node_modules # Avoid mounting node_modules
     ports:
       - "${VITE_APP_PORT:-5173}:${VITE_APP_PORT:-5173}" # Expose Vite port
     environment:
