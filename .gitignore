@@ -51,3 +51,4 @@ Homestead.yaml
 /auth.json
 /.env
 /.env.*
+frontend/.vite/
