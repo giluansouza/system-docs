@@ -48,8 +48,11 @@
                 resultsDiv.innerHTML = "<p class='text-gray-400'>Nenhum documento encontrado</p>";
             } else {
                 data.documents.forEach(doc => {
-                    let docElement = `<div class="p-4 bg-gray-800 text-white rounded shadow-md">
-                        <h3 class="text-lg font-bold">${doc._source.title}</h3>
+                    let docElement = `<div class="p-4 bg-gray-500 text-white rounded shadow-md">
+                        <div class="flex justify-between items-center">
+                            <h3 class="text-lg font-bold">${doc._source.title}</h3>
+                            <span>${doc._source.date}</span>
+                        </div>
                         <p>${doc._source.content.substring(0, 200)}...</p>
                     </div>`;
                     resultsDiv.innerHTML += docElement;

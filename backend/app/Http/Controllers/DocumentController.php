@@ -55,6 +55,11 @@ class DocumentController extends Controller
         return view('documents.index');
     }
 
+    public function create()
+    {
+        return view('documents.create');
+    }
+
     public function store(Request $request)
     {
         $request->validate([
@@ -67,42 +72,50 @@ class DocumentController extends Controller
 
         $document = DocumentMetadata::create($request->all());
 
-        // Verifica se o índice "documents" existe
-        $indexParams = ['index' => 'documents'];
-        if (!$this->elasticSearch->indices()->exists($indexParams)) {
-            $this->elasticSearch->indices()->create([
-                'index' => 'documents',
-                'body'  => [
-                    'settings' => [
-                        'number_of_shards' => 1,
-                        'number_of_replicas' => 0
-                    ],
-                    'mappings' => [
-                        'properties' => [
-                            'title' => ['type' => 'text'],
-                            'author' => ['type' => 'keyword'],
-                            'date' => ['type' => 'date'],
-                            'type' => ['type' => 'keyword'],
-                            'content' => ['type' => 'text']
+        try {
+            // Verifica se o índice "documents" existe
+            $indexParams = ['index' => 'documents'];
+            if (!$this->elasticSearch->indices()->exists($indexParams)) {
+                $this->elasticSearch->indices()->create([
+                    'index' => 'documents',
+                    'body'  => [
+                        'settings' => [
+                            'number_of_shards' => 1,
+                            'number_of_replicas' => 0
+                        ],
+                        'mappings' => [
+                            'properties' => [
+                                'title' => ['type' => 'text'],
+                                'author' => ['type' => 'keyword'],
+                                'date' => ['type' => 'date'],
+                                'type' => ['type' => 'keyword'],
+                                'content' => ['type' => 'text']
+                            ]
                         ]
                     ]
+                ]);
+            }
+
+            $this->elasticSearch->index([
+                'index' => 'documents',
+                'id' => $document->id,
+                'body' => [
+                    'title' => $document->title,
+                    'author' => $document->author,
+                    'date' => $document->date,
+                    'type' => $document->type,
+                    'content' => $document->content
                 ]
             ]);
+
+            return redirect()->route('documents.create')->with('success', 'Document created successfully');
+        } catch (\Exception $e) {
+            Log::error($e->getMessage());
+            return redirect()->route('documents.create')->with('error', 'An error occurred while creating the document');
         }
 
-        $this->elasticSearch->index([
-            'index' => 'documents',
-            'id' => $document->id,
-            'body' => [
-                'title' => $document->title,
-                'author' => $document->author,
-                'date' => $document->date,
-                'type' => $document->type,
-                'content' => $document->content
-            ]
-        ]);
 
-        return response()->json(['message' => 'Document created successfully', 'document' => $document]);
+        // return response()->json(['message' => 'Document created successfully', 'document' => $document]);
     }
 
     public function search(Request $request)
