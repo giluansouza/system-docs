@@ -18,6 +18,43 @@ class DocumentController extends Controller
             ->build();
     }
 
+    public function index(Request $request)
+    {
+        if ($request->ajax()) {
+            $request->validate([
+                'query' => 'required|string|min:3'
+            ]);
+
+            $searchQuery = $request->query('query');
+
+            $searchParams = [
+                'index' => 'documents',
+                'body' => [
+                    'query' => [
+                        'multi_match' => [
+                            'query' => $searchQuery,
+                            'fields' => ['title', 'content'],
+                            'fuzziness' => 'AUTO'
+                        ]
+                    ]
+                ]
+            ];
+
+            try {
+                $result = $this->elasticSearch->search($searchParams);
+                return response()->json([
+                    'documents' => $result['hits']['hits'],
+                    'query' => $searchQuery
+                ]);
+            } catch (\Exception $e) {
+                Log::error($e->getMessage());
+                return response()->json(['message' => 'An error occurred while searching documents'], 500);
+            }
+        }
+
+        return view('documents.index');
+    }
+
     public function store(Request $request)
     {
         $request->validate([
